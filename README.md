@@ -127,7 +127,13 @@ docker run -d \
 > **Note:** both the Docker Hub and GHCR images are built from the **same codebase** and are published/synced at the same time. You can safely use either registry interchangeably.
 
 
-> **Default Credentials:** Username: `admin` / Password: `admin`
+> ⚠️ **Default Login:**  
+> **Username:** `admin`  
+> **Password:** `admin`  
+>  
+> **Important:** You will be prompted to change the password on first login.  
+>  
+
 
 ### Using Docker Compose
 
