@@ -19,7 +19,8 @@
   <img src="https://img.shields.io/badge/flask-2.x-green.svg" alt="Flask 2.x">
   <img src="https://img.shields.io/badge/vue.js-3.x-brightgreen.svg" alt="Vue.js 3">
   <img src="https://img.shields.io/badge/license-GPL--3.0-orange.svg" alt="License GPL-3.0">
-  <a href="https://hub.docker.com/r/ftsiadimos/bashtower"><img src="https://img.shields.io/docker/pulls/ftsiadimos/bashtower?style=flat-square&logo=docker" alt="Docker Pulls"></a>
+  <a href="https://hub.docker.com/r/ftsiadimos/bashtower"><img src="https://img.shields.io/docker/pulls/ftsiadimos/bashtower?style=flat-square&logo=docker" alt="Docker Pulls"></a>  
+<a href="https://github.com/orgs/ftsiadimos/packages/container/package/bashtower"><img src="https://img.shields.io/badge/ghcr.io-available-blue?style=flat-square&logo=github" alt="GitHub Container Registry"></a>
 </p>
 
 ---
@@ -97,16 +98,34 @@ You can also restore a full backup from the `backup` branch via the Git Sync UI.
 
 ### Using Docker (Recommended)
 
+#### Docker Hub
+
 ```bash
-# Pull and run in one command
+# pull and run from Docker Hub
 docker run -d \
   --name bashtower \
   -p 1008:1008 \
   -v bashtower_data:/app/instance \
   ftsiadimos/bashtower
 
-# Access at http://localhost:1008
+# access at http://localhost:1008
 ```
+
+#### GitHub Container Registry (GHCR)
+
+```bash
+# pull and run from GHCR
+docker run -d \
+  --name bashtower \
+  -p 1008:1008 \
+  -v bashtower_data:/app/instance \
+  ghcr.io/ftsiadimos/bashtower:latest
+
+# access at http://localhost:1008
+```
+
+> **Note:** both the Docker Hub and GHCR images are built from the **same codebase** and are published/synced at the same time. You can safely use either registry interchangeably.
+
 
 > **Default Credentials:** Username: `admin` / Password: `admin`
 
