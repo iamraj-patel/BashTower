@@ -530,6 +530,15 @@ const App = {
             } catch (e) { /**/ }
         },
 
+        // Cycle through available themes (toggled from the top-bar button)
+        cycleTheme() {
+            const themes = ['default', 'green-terminal'];
+            const current = (this.settingsForm && this.settingsForm.theme) || 'default';
+            const next = themes[(themes.indexOf(current) + 1) % themes.length];
+            if (this.settingsForm) this.settingsForm.theme = next;
+            this.setTheme(next);
+        },
+
         // --------------------------------------------------------------------
         // Smart Polling Setup
         // --------------------------------------------------------------------

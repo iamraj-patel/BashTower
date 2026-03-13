@@ -240,6 +240,9 @@
                             <i class="fas fa-crown mr-1"></i>Admin
                         </span>
                     </div>
+                    <button @click="cycleTheme" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition flex items-center gap-1" :title="'Theme: ' + (settingsForm ? settingsForm.theme : 'default')">
+                        <i :class="settingsForm && settingsForm.theme === 'green-terminal' ? 'fas fa-terminal text-green-600' : 'fas fa-circle-half-stroke'"></i>
+                    </button>
                     <button v-if="!authDisabled" @click="logout" class="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition flex items-center gap-1">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
