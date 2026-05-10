@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BashTower – Remote Script Execution Platform</title>
+  <meta name="description" content="A web-based platform for remote script execution suitable for personal and small server environments. Practical, secure, and easy to manage." />
+  <link rel="icon" href="https://raw.githubusercontent.com/ftsiadimos/BashTower/main/mis/BashTower.webp" type="image/webp" />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:   #16a34a;
+      --green-l: #22c55e;
+      --green-d: #15803d;
+      --bg:      #f9fafb;
+      --card:    #ffffff;
+      --border:  #e5e7eb;
+      --text:    #111827;
+      --muted:   #6b7280;
+      --code-bg: #0f172a;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.92); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: .6rem; font-weight: 700; font-size: 1.1rem; color: var(--text); text-decoration: none; }
+    .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: var(--green); }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: var(--green); color: #fff;
+      padding: .45rem 1.1rem; border-radius: 8px;
+      font-size: .88rem; font-weight: 600; text-decoration: none;
+      transition: background .2s;
+    }
+    .nav-cta:hover { background: var(--green-d); }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #052e16 0%, #14532d 50%, #166534 100%);
+      color: #fff;
+      padding: 7rem 2rem 6rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 60% 40%, rgba(34,197,94,.15) 0%, transparent 70%);
+    }
+    .hero-logo { width: 96px; height: 96px; border-radius: 20px; margin-bottom: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,.4); position: relative; }
+    .hero h1 { font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 800; letter-spacing: -.02em; position: relative; }
+    .hero-sub { font-size: 1.15rem; color: #bbf7d0; max-width: 600px; margin: 1rem auto 2.5rem; position: relative; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin-bottom: 2.5rem; position: relative; }
+    .badge-row img { height: 22px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; position: relative; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: var(--green-l); color: #fff;
+      padding: .75rem 1.8rem; border-radius: 10px;
+      font-size: 1rem; font-weight: 700; text-decoration: none;
+      transition: background .2s, transform .15s;
+      box-shadow: 0 4px 14px rgba(34,197,94,.35);
+    }
+    .btn-primary:hover { background: var(--green); transform: translateY(-2px); }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(255,255,255,.1); color: #fff;
+      border: 1.5px solid rgba(255,255,255,.3);
+      padding: .75rem 1.8rem; border-radius: 10px;
+      font-size: 1rem; font-weight: 600; text-decoration: none;
+      transition: background .2s, transform .15s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,.18); transform: translateY(-2px); }
+
+    /* ── SECTION WRAPPER ── */
+    section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-label { font-size: .8rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green); margin-bottom: .5rem; }
+    .section-title { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; color: var(--text); margin-bottom: .8rem; }
+    .section-sub { color: var(--muted); max-width: 560px; }
+
+    /* ── SCREENSHOTS ── */
+    .screenshots { background: #f1f5f9; padding: 4rem 2rem; }
+    .screenshots-inner { max-width: 1100px; margin: 0 auto; }
+    .screenshots-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
+    .screenshot-card {
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,.1);
+      border: 1px solid var(--border); background: var(--card);
+    }
+    .screenshot-card img { width: 100%; display: block; }
+    .screenshot-card p { padding: .6rem 1rem; font-size: .82rem; color: var(--muted); text-align: center; }
+
+    /* ── FEATURE GRID ── */
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+    .feature-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.5rem;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .feature-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.08); transform: translateY(-3px); }
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: #dcfce7; color: var(--green);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; margin-bottom: 1rem;
+    }
+    .feature-card h3 { font-size: .97rem; font-weight: 700; margin-bottom: .35rem; }
+    .feature-card p  { font-size: .87rem; color: var(--muted); }
+
+    /* ── INSTALL TABS ── */
+    .tabs { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .tab-btn {
+      padding: .45rem 1.1rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--card); color: var(--muted);
+      font-size: .87rem; font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    pre {
+      background: var(--code-bg); color: #e2e8f0;
+      border-radius: 12px; padding: 1.4rem 1.6rem;
+      font-family: 'Fira Code', monospace; font-size: .87rem;
+      overflow-x: auto; line-height: 1.7;
+    }
+    .comment { color: #64748b; }
+    .cmd     { color: #86efac; }
+
+    /* ── DEPLOYMENT TABLE ── */
+    table { width: 100%; border-collapse: collapse; margin-top: 2rem; font-size: .9rem; }
+    th { text-align: left; padding: .75rem 1rem; background: #f3f4f6; font-weight: 600; font-size: .82rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    td { padding: .75rem 1rem; border-top: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+    td code { font-family: 'Fira Code', monospace; font-size: .82rem; background: #f1f5f9; padding: .15rem .4rem; border-radius: 5px; }
+    tr:hover td { background: #f9fafb; }
+
+    /* ── QUICK START CARDS ── */
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; counter-reset: step; }
+    .step-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem; position: relative; }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--green); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 800; margin-bottom: .9rem;
+    }
+    .step-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .35rem; }
+    .step-card p  { font-size: .85rem; color: var(--muted); }
+
+    /* ── REGISTRY CARDS ── */
+    .registry-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 2rem; }
+    .registry-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem;
+      display: flex; flex-direction: column; gap: .8rem;
+    }
+    .registry-card h3 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: .5rem; }
+    .registry-card p { font-size: .87rem; color: var(--muted); }
+    .registry-card a {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: var(--green); color: #fff;
+      padding: .45rem 1rem; border-radius: 8px;
+      font-size: .85rem; font-weight: 600; text-decoration: none;
+      transition: background .2s; align-self: flex-start;
+    }
+    .registry-card a:hover { background: var(--green-d); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #0f172a; color: #94a3b8;
+      text-align: center; padding: 3rem 2rem;
+      font-size: .9rem;
+    }
+    footer a { color: var(--green-l); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    footer .footer-logo { display: flex; align-items: center; justify-content: center; gap: .6rem; margin-bottom: 1rem; font-weight: 700; font-size: 1.1rem; color: #fff; }
+    footer .footer-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; margin: 1rem 0; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .nav-links { display: none; }
+      .screenshots-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <img src="https://raw.githubusercontent.com/ftsiadimos/BashTower/main/mis/BashTower.webp" alt="BashTower" />
+    BashTower
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#install">Install</a></li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#api">API</a></li>
+  </ul>
+  <a href="https://github.com/ftsiadimos/BashTower" class="nav-cta" target="_blank">
+    <i class="fab fa-github"></i> GitHub
+  </a>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <img src="https://raw.githubusercontent.com/ftsiadimos/BashTower/main/mis/BashTower.webp" alt="BashTower Logo" class="hero-logo" />
+  <h1>BashTower</h1>
+  <p class="hero-sub">A web-based platform for remote script execution suitable for personal and small server environments. Practical, secure, and easy to manage.</p>
+  <div class="badge-row">
+    <img src="https://img.shields.io/badge/python-3.9+-blue.svg" alt="Python 3.9+" />
+    <img src="https://img.shields.io/badge/flask-2.x-green.svg" alt="Flask 2.x" />
+    <img src="https://img.shields.io/badge/vue.js-3.x-brightgreen.svg" alt="Vue.js 3" />
+    <img src="https://img.shields.io/badge/license-GPL--3.0-orange.svg" alt="GPL-3.0" />
+    <img src="https://img.shields.io/docker/pulls/ftsiadimos/bashtower?style=flat-square&logo=docker" alt="Docker Pulls" />
+    <img src="https://img.shields.io/badge/ghcr.io-available-blue?style=flat-square&logo=github" alt="GHCR" />
+  </div>
+  <div class="hero-actions">
+    <a href="#install" class="btn-primary"><i class="fas fa-rocket"></i> Get Started</a>
+    <a href="https://github.com/ftsiadimos/BashTower" class="btn-outline" target="_blank"><i class="fab fa-github"></i> View on GitHub</a>
+    <a href="https://hub.docker.com/r/ftsiadimos/bashtower" class="btn-outline" target="_blank"><i class="fab fa-docker"></i> Docker Hub</a>
+  </div>
+</div>
+
+<!-- ── SCREENSHOTS ── -->
+<div class="screenshots" id="screenshots">
+  <div class="screenshots-inner">
+    <div class="section-label">Screenshots</div>
+    <div class="section-title">See it in action</div>
+    <div class="screenshots-grid">
+      <div class="screenshot-card">
+        <img src="https://raw.githubusercontent.com/ftsiadimos/BashTower/main/mis/image1.webp" alt="Dashboard Overview" />
+        <p>Dashboard – launch scripts and monitor job results in real time</p>
+      </div>
+      <div class="screenshot-card">
+        <img src="https://raw.githubusercontent.com/ftsiadimos/BashTower/main/mis/image2.webp" alt="AI Troubleshooter" />
+        <p>AI Troubleshooter – analyze errors and get actionable fix suggestions</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FEATURES ── -->
+<section id="features">
+  <div class="section-label">Features</div>
+  <div class="section-title">Everything you need to manage remote scripts</div>
+  <p class="section-sub">From ad-hoc script execution to scheduled jobs, BashTower covers the full lifecycle.</p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-terminal"></i></div>
+      <h3>Multi-Host Execution</h3>
+      <p>Run Bash or Python scripts on multiple hosts simultaneously via SSH with real-time output streaming.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-file-code"></i></div>
+      <h3>Template Library</h3>
+      <p>Save reusable script templates with syntax highlighting, categories, and dynamic argument support.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-sliders-h"></i></div>
+      <h3>Dynamic Arguments</h3>
+      <p>Parameterize templates with text, password, number, or select fields — filled at runtime.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-layer-group"></i></div>
+      <h3>Host Groups</h3>
+      <p>Organize hosts into logical groups (e.g. "Web Servers", "Databases") for bulk targeted operations.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-key"></i></div>
+      <h3>Secure SSH Key Storage</h3>
+      <p>SSH private keys are encrypted at rest with AES-256 and never exposed in the UI.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-clock"></i></div>
+      <h3>Cron Job Scheduler</h3>
+      <p>Schedule recurring script execution with standard cron expressions and a full execution history.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-robot"></i></div>
+      <h3>AI-Powered Troubleshooting</h3>
+      <p>Analyze job failures and get fix suggestions via OpenAI, Google Gemini, or self-hosted Ollama.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-code-branch"></i></div>
+      <h3>Git Sync &amp; Backup</h3>
+      <p>Push templates to a Git repo for version control, and create full backups to a dedicated branch.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-satellite-dish"></i></div>
+      <h3>Red Hat Satellite Sync</h3>
+      <p>Auto-import your host inventory directly from a Red Hat Satellite / Foreman instance.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-users"></i></div>
+      <h3>Multi-User Auth</h3>
+      <p>Built-in user management with admin roles. Authentication can be disabled for trusted environments.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fab fa-docker"></i></div>
+      <h3>Docker Ready</h3>
+      <p>One-command deployment with Docker. Available on Docker Hub and GitHub Container Registry.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+      <h3>Responsive UI</h3>
+      <p>Clean Tailwind CSS interface that works across desktop, tablet, and mobile browsers.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── INSTALL ── -->
+<div style="background: #f1f5f9; padding: 1px 0;">
+<section id="install">
+  <div class="section-label">Installation</div>
+  <div class="section-title">Get up and running in minutes</div>
+  <p class="section-sub">Docker is the recommended way. No dependencies to manage beyond Docker itself.</p>
+
+  <div class="registry-grid" style="margin-bottom: 2.5rem;">
+    <div class="registry-card">
+      <h3><i class="fab fa-docker" style="color:#2496ed"></i> Docker Hub</h3>
+      <p>Official image updated with every release. The fastest way to get started.</p>
+      <a href="https://hub.docker.com/r/ftsiadimos/bashtower" target="_blank"><i class="fas fa-external-link-alt"></i> View on Docker Hub</a>
+    </div>
+    <div class="registry-card">
+      <h3><i class="fab fa-github" style="color:#6e40c9"></i> GitHub Container Registry</h3>
+      <p>Same image, also published to GHCR — interchangeable with Docker Hub.</p>
+      <a href="https://github.com/orgs/ftsiadimos/packages/container/package/bashtower" target="_blank"><i class="fas fa-external-link-alt"></i> View on GHCR</a>
+    </div>
+  </div>
+
+  <div class="tabs" id="install-tabs">
+    <button class="tab-btn active" onclick="switchTab('docker-run')">Docker Run</button>
+    <button class="tab-btn" onclick="switchTab('docker-compose')">Docker Compose</button>
+    <button class="tab-btn" onclick="switchTab('local')">Local / Dev</button>
+  </div>
+
+  <div id="docker-run" class="tab-panel active">
+<pre><span class="comment"># Pull and run from Docker Hub</span>
+<span class="cmd">docker run</span> -d \
+  --name bashtower \
+  --restart unless-stopped \
+  -p 1008:1008 \
+  -v bashtower_data:/app/instance \
+  ftsiadimos/bashtower
+
+<span class="comment"># Or from GitHub Container Registry</span>
+<span class="cmd">docker run</span> -d \
+  --name bashtower \
+  --restart unless-stopped \
+  -p 1008:1008 \
+  -v bashtower_data:/app/instance \
+  ghcr.io/ftsiadimos/bashtower:latest
+
+<span class="comment"># Access at http://localhost:1008  (default login: admin / admin)</span></pre>
+  </div>
+
+  <div id="docker-compose" class="tab-panel">
+<pre><span class="comment"># docker-compose.yml</span>
+version: '3.8'
+services:
+  bashtower:
+    image: ftsiadimos/bashtower   <span class="comment"># or ghcr.io/ftsiadimos/bashtower:latest</span>
+    container_name: bashtower
+    ports:
+      - "1008:1008"
+    volumes:
+      - ./instance:/app/instance
+    restart: unless-stopped</pre>
+<pre style="margin-top:.75rem"><span class="cmd">docker compose up -d</span></pre>
+  </div>
+
+  <div id="local" class="tab-panel">
+<pre><span class="comment"># Clone the repository</span>
+<span class="cmd">git clone</span> https://github.com/ftsiadimos/BashTower.git
+<span class="cmd">cd</span> BashTower
+
+<span class="comment"># Create and activate a virtual environment</span>
+<span class="cmd">python -m venv</span> venv
+<span class="cmd">source</span> venv/bin/activate   <span class="comment"># Windows: venv\Scripts\activate</span>
+
+<span class="comment"># Install dependencies</span>
+<span class="cmd">pip install</span> -r requirements.txt
+
+<span class="comment"># Run the application</span>
+<span class="cmd">flask run</span> --host=0.0.0.0 --port=1008</pre>
+  </div>
+
+  <p style="margin-top:1.2rem; font-size:.9rem; color:var(--muted);">
+    <i class="fas fa-info-circle" style="color:var(--green)"></i>
+    &nbsp;Default login: <strong>admin / admin</strong>. You will be prompted to change the password on first login.
+  </p>
+</section>
+</div>
+
+<!-- ── USAGE ── -->
+<section id="usage">
+  <div class="section-label">Usage Guide</div>
+  <div class="section-title">From zero to running scripts in 5 steps</div>
+
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <h3>Add SSH Keys</h3>
+      <p>Navigate to <strong>Keys</strong> and add your SSH private keys. They are encrypted with AES-256 at rest.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <h3>Add Hosts</h3>
+      <p>Go to <strong>Hosts</strong> and register your servers with their hostname, SSH user, and port.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <h3>Organise into Groups</h3>
+      <p>Use <strong>Host Groups</strong> to cluster servers logically (e.g. "Web", "DB") for bulk targeting.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <h3>Create Templates</h3>
+      <p>Write Bash or Python scripts in <strong>Templates</strong>. Add dynamic <code>{{arguments}}</code> for flexibility.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">5</div>
+      <h3>Launch &amp; Monitor</h3>
+      <p>From the <strong>Dashboard</strong>, pick a template, select targets, and click <em>Launch Script</em>. Watch live output per host.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── API ── -->
+<div style="background: #f1f5f9; padding: 1px 0;">
+<section id="api">
+  <div class="section-label">API Reference</div>
+  <div class="section-title">RESTful API for automation</div>
+  <p class="section-sub">BashTower exposes a JSON API for scripting and integration.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Method</th><th>Endpoint</th><th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>POST</code></td><td><code>/api/auth/login</code></td><td>Authenticate and get a session</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/templates</code></td><td>List all script templates</td></tr>
+      <tr><td><code>POST</code></td><td><code>/api/templates</code></td><td>Create a new template</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/hosts</code></td><td>List all hosts</td></tr>
+      <tr><td><code>POST</code></td><td><code>/api/hosts</code></td><td>Add a new host</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/groups</code></td><td>List all host groups</td></tr>
+      <tr><td><code>POST</code></td><td><code>/api/groups</code></td><td>Create a host group</td></tr>
+      <tr><td><code>POST</code></td><td><code>/api/run</code></td><td>Execute a template on target hosts</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/jobs</code></td><td>List job history</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/jobs/&lt;id&gt;</code></td><td>Get job detail with per-host logs</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/cronjobs</code></td><td>List scheduled cron jobs</td></tr>
+      <tr><td><code>POST</code></td><td><code>/api/cronjobs</code></td><td>Create a cron job</td></tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:1.8rem;">
+    <h3 style="font-size:1rem; font-weight:700; margin-bottom:.8rem;">Example – Run a template</h3>
+<pre>curl -X POST http://localhost:1008/api/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "template_id": 1,
+    "host_ids": [1, 2],
+    "key_id": 1,
+    "arguments": {"env": "production"}
+  }'</pre>
+  </div>
+</section>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">
+    <img src="https://raw.githubusercontent.com/ftsiadimos/BashTower/main/mis/BashTower.webp" alt="BashTower" />
+    BashTower
+  </div>
+  <div class="footer-links">
+    <a href="https://github.com/ftsiadimos/BashTower" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+    <a href="https://hub.docker.com/r/ftsiadimos/bashtower" target="_blank"><i class="fab fa-docker"></i> Docker Hub</a>
+    <a href="https://github.com/orgs/ftsiadimos/packages/container/package/bashtower" target="_blank"><i class="fas fa-box"></i> GHCR</a>
+    <a href="https://github.com/ftsiadimos/BashTower/blob/main/LICENSE" target="_blank"><i class="fas fa-balance-scale"></i> GPL-3.0</a>
+  </div>
+  <p>Released under the <a href="https://github.com/ftsiadimos/BashTower/blob/main/LICENSE">GPL-3.0 License</a> &nbsp;·&nbsp; Version 2.4.0</p>
+</footer>
+
+<script>
+  function switchTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+</script>
+</body>
+</html>
