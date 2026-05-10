@@ -80,6 +80,7 @@ const App = {
             activeJob: null,
             jobPollingInterval: null,
             hostSearchQuery: '',
+            dashboardSelectionExpanded: false,
             runForm: {
                 template_id: null,
                 selection_type: 'groups',
