@@ -502,7 +502,7 @@ services:
     <a href="https://github.com/orgs/ftsiadimos/packages/container/package/bashtower" target="_blank"><i class="fas fa-box"></i> GHCR</a>
     <a href="https://github.com/ftsiadimos/BashTower/blob/main/LICENSE" target="_blank"><i class="fas fa-balance-scale"></i> GPL-3.0</a>
   </div>
-  <p>Released under the <a href="https://github.com/ftsiadimos/BashTower/blob/main/LICENSE">GPL-3.0 License</a> &nbsp;·&nbsp; Version 2.4.0</p>
+  <p>Released under the <a href="https://github.com/ftsiadimos/BashTower/blob/main/LICENSE">GPL-3.0 License</a> &nbsp;·&nbsp; Version <span id="app-version">2.4.0</span></p>
 </footer>
 
 <script>
@@ -512,6 +512,11 @@ services:
     document.getElementById(id).classList.add('active');
     event.currentTarget.classList.add('active');
   }
+
+  fetch('https://raw.githubusercontent.com/ftsiadimos/BashTower/main/VERSION')
+    .then(r => r.ok ? r.text() : null)
+    .then(v => { if (v) document.getElementById('app-version').textContent = v.trim(); })
+    .catch(() => {});
 </script>
 </body>
 </html>

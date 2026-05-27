@@ -123,8 +123,6 @@ def sync_satellite_hosts():
                 group_cache[hostgroup_name] = existing_group
 
     # Second pass: Create hosts and associate with groups
-
-    # Second pass: Create hosts and associate with groups
     for host_data in hosts_to_process:
         host_name = host_data.get('name')
         host_ip_or_fqdn = host_data.get('ip') or host_data.get('name')
@@ -133,10 +131,14 @@ def sync_satellite_hosts():
         if not host_ip_or_fqdn:
             continue
 
-        existing_host = Host.query.filter_by(hostname=host_ip_or_fqdn).first()
         hostgroup_name = host_data.get('hostgroup_title') or host_data.get(
             'hostgroup_name'
         )
+
+        # Look up by name first; fall back to hostname (IP/FQDN) match
+        existing_host = Host.query.filter_by(name=host_name).first()
+        if not existing_host:
+            existing_host = Host.query.filter_by(hostname=host_ip_or_fqdn).first()
 
         if not existing_host:
             new_host = Host(
@@ -158,7 +160,11 @@ def sync_satellite_hosts():
             host_count += 1
             synced_hosts.append(host_ip_or_fqdn)
         else:
-            # Update existing host's group membership if group exists
+            # Update IP if it has changed
+            if existing_host.hostname != host_ip_or_fqdn:
+                existing_host.hostname = host_ip_or_fqdn
+
+            # Update group membership if group exists
             if hostgroup_name and hostgroup_name in group_cache:
                 group = group_cache[hostgroup_name]
                 if existing_host not in group.hosts:
